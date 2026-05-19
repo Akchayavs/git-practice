@@ -10,7 +10,7 @@ function TaskList({ list, completeTask, deleteTask }) {
     <ul>
       {list.map((task) => (
         <TaskItem
-          key={task.id}
+          key={task._id}
           task={task}
           completeTask={completeTask}
           deleteTask={deleteTask}

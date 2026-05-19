@@ -1,48 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import TaskInput from "./TaskInput";
 import TaskList from "./TaskList";
-import { v4 as uuidv4 } from "uuid";
 
 function App() {
   const [text, setText] = useState("");
   const [list, setList] = useState([]);
 
-  function addTask() {
+  
+  useEffect(() => {
+    fetch("http://localhost:5000/tasks")
+      .then((res) => res.json())
+      .then((data) => setList(data))
+      .catch((err) => console.log(err));
+  }, []);
+
+  
+  const addTask = useCallback(() => {
     if (text.trim() === "") return;
 
-    const newTask = {
-      id: uuidv4(),
-      task: text,
-      completed: false,
-    };
+    fetch("http://localhost:5000/tasks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ task: text }),
+    })
+      .then((res) => res.json())
+      .then((newTask) => {
+        setList((prev) => [...prev, newTask]);
+        setText("");
+      })
+      .catch((err) => console.log(err));
+  }, [text]);
 
-    setList([...list, newTask]);
-    setText("");
-  }
+  
+  const completeTask = useCallback((id) => {
+    fetch(`http://localhost:5000/tasks/${id}`, {
+      method: "PUT",
+    })
+      .then(() => {
+        setList((prev) =>
+          prev.map((task) =>
+            task._id === id ? { ...task, completed: true } : task
+          )
+        );
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
-  function completeTask(id) {
-    const updatedList = list.map((task) =>
-      task.id === id ? { ...task, completed: true } : task
-    );
-    setList(updatedList);
-  }
-
-  function deleteTask(id) {
-    const updatedList = list.filter((task) => task.id !== id);
-    setList(updatedList);
-  }
+  
+  const deleteTask = useCallback((id) => {
+    fetch(`http://localhost:5000/tasks/${id}`, {
+      method: "DELETE",
+    })
+      .then(() => {
+        setList((prev) => prev.filter((task) => task._id !== id));
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center">
-      <div className="bg-white w-full max-w-xl p-6 rounded-2xl shadow-xl">
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-extrabold text-indigo-600">
-            Welcome 👋
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Manage your tasks effortlessly
-          </p>
-        </div>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="bg-white w-full max-w-md p-5 rounded shadow">
+
+        <h1 className="text-xl font-bold mb-4 text-center">
+          Task Manager
+        </h1>
 
         <TaskInput
           text={text}
@@ -55,6 +78,7 @@ function App() {
           completeTask={completeTask}
           deleteTask={deleteTask}
         />
+
       </div>
     </div>
   );

@@ -1,9 +1,18 @@
-import React from "react";
+
+import React, { useRef, useEffect } from "react";
 
 function TaskInput({ text, setText, addTask }) {
+  
+const inputRef = useRef(null);
+
+useEffect(() => {
+  inputRef.current.focus();
+}, []);
+
   return (
     <div className="flex gap-3 mb-6">
       <input
+      ref={inputRef}
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}

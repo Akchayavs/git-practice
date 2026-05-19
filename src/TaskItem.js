@@ -15,7 +15,7 @@ function TaskItem({ task, completeTask, deleteTask }) {
 
       <div className="flex gap-2 ml-3">
         <button
-          onClick={() => completeTask(task.id)}
+          onClick={() => completeTask(task._id)}
           disabled={task.completed}
           className={`px-3 py-1 text-sm rounded-lg transition ${
             task.completed
@@ -27,7 +27,7 @@ function TaskItem({ task, completeTask, deleteTask }) {
         </button>
 
         <button
-          onClick={() => deleteTask(task.id)}
+          onClick={() => deleteTask(task._id)}
           className="px-3 py-1 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 transition"
         >
           Delete
